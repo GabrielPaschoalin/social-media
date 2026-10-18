@@ -22,7 +22,7 @@ func (rep Usuarios) Criar(usuario modelos.Usuario) (uint64, error) {
 	}
 	defer statement.Close()
 
-	resultado, erro := statement.Exec(usuario.Name, usuario.Nick, usuario.Email, usuario.Password)
+	resultado, erro := statement.Exec(usuario.Nome, usuario.Nick, usuario.Email, usuario.Senha)
 	if erro != nil {
 		return 0, erro
 	}
