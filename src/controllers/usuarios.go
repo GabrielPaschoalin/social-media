@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"api/src/autenticacao"
 	"api/src/banco"
 	"api/src/modelos"
 	"api/src/repositorios"
 	"api/src/respostas"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -118,6 +120,18 @@ func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verificar se o usuusarioID é o mesmo que está autenticado
+	usuarioAutenticado, erro := autenticacao.ExtrairIdUsuario(r)
+	if erro != nil {
+		respostas.Erro(w, http.StatusUnauthorized, erro)
+		return
+	}
+
+	if usuarioAutenticado != usuarioID {
+		respostas.Erro(w, http.StatusForbidden, errors.New("Usuário não permitido para realizar ação"))
+		return
+	}
+
 	// Obter e converter body para um usuario
 	corpoRequisicao, erro := io.ReadAll(r.Body)
 	if erro != nil {
@@ -162,6 +176,18 @@ func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 	usuarioID, erro := strconv.ParseUint(vars["usuarioId"], 10, 64)
 	if erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// Verificar se o usuusarioID é o mesmo que está autenticado
+	usuarioAutenticado, erro := autenticacao.ExtrairIdUsuario(r)
+	if erro != nil {
+		respostas.Erro(w, http.StatusUnauthorized, erro)
+		return
+	}
+
+	if usuarioAutenticado != usuarioID {
+		respostas.Erro(w, http.StatusForbidden, errors.New("Usuário não permitido para realizar ação"))
 		return
 	}
 
